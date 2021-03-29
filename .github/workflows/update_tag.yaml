@@ -1,0 +1,30 @@
+name: Update versions (test)
+
+on:
+  repository_dispatch:
+    types:
+      - pull-charts
+
+jobs:
+  update:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.email "no-reply@ionos-cloud.com";
+          git config user.name "IONOS-CloudBot";
+
+      - name: Print message body
+        run: |
+          echo "body: ${{ toJSON(github.event.client_payload) }}"
+      - name: use output
+        run: |
+          charts=$(echo $CHARTS_JSON | jq -r '. | join(" ")')
+          echo $charts
+        env:
+          CHARTS_JSON: ${{ toJSON(github.event.client_payload.charts) }}
